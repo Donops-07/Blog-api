@@ -5,6 +5,7 @@ const connectDB = require("./database/connectDB.js");
 const logRequest = require("./middlewares/logger.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const Router = require("./routes/article.route.js");
+const route = require("./routes/user.route.js");
 const { postArticle, getAllArticles, searchArticle, getArticleById, updateArticleById, deleteArticleById } = require("./controllers/article.js");
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(cors("*"));
 app.use(logRequest);
 app.use("/api", Router);
+app.use("/api/user", route);
 
 app.use(errorHandler);
 app.listen(PORT, () => {

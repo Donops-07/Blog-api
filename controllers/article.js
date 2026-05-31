@@ -5,15 +5,19 @@ const postArticle = async (req, res, next) => {
     try {
         const articleSchema = Joi.object({
             title: Joi.string().trim().min(3).max(30).required(),
-            content: Joi.string().trim().min(20).required(),
-            author: Joi.string().optional().default("Guest")
+            content: Joi.string().trim().min(20).required()
         });
 
         const { error, value } = articleSchema.validate(req.body);
         if (error) return res.status(400).json({
             error: "There's an error from the json sent"
         });
-        const newArticle = ArticleModel(value);
+
+        const newArticle = ArticleModel({
+            title: req.body.title,
+            content: req.body.content,
+            author: req.body._id
+        });
         await newArticle.save();
         return res.status(201).json({
             message: "New post created",
