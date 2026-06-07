@@ -14,7 +14,7 @@ const articleSchema = new mongoose.Schema({
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Author"
+        ref: "User"
     }
 }, { timestamps: true });
 

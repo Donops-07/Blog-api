@@ -16,7 +16,7 @@ const postArticle = async (req, res, next) => {
         const newArticle = ArticleModel({
             title: req.body.title,
             content: req.body.content,
-            author: req.body._id
+            author: req.user.userId
         });
         await newArticle.save();
         return res.status(201).json({
@@ -35,7 +35,15 @@ const getAllArticles = async (req, res, next) => {
         const { limit = 10, page = 1 } = req.query;
         if (parseInt(limit) > 20) return res.status(400).json({ error: "Limit should be lower" });
         const skip = (page - 1) * limit;
-        const gettingArticles = await ArticleModel.find({})
+
+        const user = req.user;
+        let queryFilter = {};
+        if (user.role !== "admin") {
+            queryFilter.author = user.userId;
+        };
+
+        console.log(queryFilter);
+        const gettingArticles = await ArticleModel.find(queryFilter)
             .sort({ createdAt: - 1 })
             .skip(skip)
             .limit(limit);
@@ -60,7 +68,13 @@ const searchArticle = async (req, res, next) => {
 const getArticleById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        const articles = await ArticleModel.findById(id);
+        const user = req.user;
+        let queryFilter = { _id: id };
+        if (user.role !== "admin") {
+            queryFilter.author = user.userId
+        };
+
+        const articles = await ArticleModel.findOne(queryFilter);
         if (!articles) return res.status(404).json({ error: "Article not found" });
         return res.status(200).json({ message: "Article found", articles });
     } catch (error) {
@@ -82,7 +96,10 @@ const updateArticleById = async (req, res, next) => {
             error: "Unable to update article"
         });
         const id = req.params.id;
-        const changeArticle = await ArticleModel.findByIdAndUpdate(id,
+        const user = req.user;
+        let queryFilter = { _id: id };
+        queryFilter.author = user.userId
+        const changeArticle = await ArticleModel.findOneAndUpdate(queryFilter,
             { ...req.body },
             {
                 new: true,
@@ -103,9 +120,20 @@ const updateArticleById = async (req, res, next) => {
 const deleteArticleById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        const articleToDelete = await ArticleModel.findByIdAndDelete(id);
-        if (!articleToDelete) return res.status(400).json({ error: "Article not found" });
-        return res.status(204).json({ message: "Article deleted" });
+        const user = req.user;
+        let queryFilter = { _id: id };
+        if (user.role !== "admin") {
+            queryFilter.author = user.userId
+        };
+
+        const deletedArticle = await ArticleModel.findOneAndDelete(queryFilter);
+
+
+        if (!deletedArticle) {
+            return res.status(403).json({ error: "Not authorized or article not found" });
+        };
+
+        return res.status(200).json({ message: "Article deleted successfully" });
     } catch (error) {
         console.error(error);
         next(error);
