@@ -2,6 +2,7 @@ const UserModel = require("../models/user.model.js");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const envVars = require("../config/env.config.js");
 
 const registerUser = async (req, res, next) => {
     const registerSchema = Joi.object({
@@ -62,7 +63,7 @@ const loginUser = async (req, res, next) => {
 
         const token = jwt.sign(
             { userId: user._id, name: user.name, role: user.role },
-            process.env.JWT_SECRET,
+            envVars.JWT_SECRET,
             { expiresIn: "7d" }
         );
         return res.status(200).json({ message: "User logged in", resUser, token });
