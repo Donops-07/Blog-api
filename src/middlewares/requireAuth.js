@@ -9,7 +9,7 @@ const requireAuth = async (req, res, next) => {
     const token = headerAuth.replace("Bearer ", "");
 
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const payload = jwt.verify(token, envVars.JWT_SECRET);
         req.user = payload;
         next();
     } catch (error) {

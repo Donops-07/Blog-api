@@ -1,24 +1,12 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./database/connectDB.js");
-const logRequest = require("./middlewares/logger.js");
-const errorHandler = require("./middlewares/errorHandler.js");
-const Router = require("./routes/article.route.js");
-const route = require("./routes/user.route.js");
-const { postArticle, getAllArticles, searchArticle, getArticleById, updateArticleById, deleteArticleById } = require("./controllers/article.js");
-const app = express();
+const envVars = require("./src/config/env.config.js");
+const app = require("./src/app.js");
+const connectDB = require("./src/database/connectDB.js");
 
-const PORT = process.env.PORT;
+const PORT = envVars.PORT;
 
 connectDB();
-app.use(express.json());
-app.use(cors("*"));
-app.use(logRequest);
-app.use("/api", Router);
-app.use("/api/user", route);
 
-app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`Server is connected on http://localhost:${PORT}`);
 });
